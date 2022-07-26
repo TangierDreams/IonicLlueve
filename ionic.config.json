@@ -1,0 +1,7 @@
+{
+  "name": "llueve",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
