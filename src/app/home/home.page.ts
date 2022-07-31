@@ -1,44 +1,70 @@
-import { HttpClient } from '@angular/common/http';
+import { WeatherService } from './../services/weather.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
-import { Observable, Subscription } from 'rxjs';
+import { LoadingController } from '@ionic/angular';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-home',
     templateUrl: 'home.page.html',
     styleUrls: ['home.page.scss'],
+    providers: [DatePipe]
 })
 export class HomePage implements OnInit, OnDestroy {
 
-    public subscription: Subscription;
-    public prevision$: Observable<any>;
-    public prevision;
-
+    public prevision = null;
 
     constructor(
-        public navController: NavController,
-        public httpClient: HttpClient
+        private datePipe: DatePipe,
+        private loadingController: LoadingController,
+        private weatherService: WeatherService,
     ) { }
 
     ngOnInit(): void {
         console.log("ngOnInit()");
-
-        const API_KEY: string = "b6f36a3894fcea73d145adf6cad063f5";
-        const RUTA_FORECAST: string = "https://api.openweathermap.org/data/2.5/onecall?lat=33.44&lon=-94.04&exclude=minutely,alert&units=metric&lang=ES&appid=";
-
-        this.prevision$ = this.httpClient.get(RUTA_FORECAST + API_KEY);
-        this.subscription = this.prevision$
-            .subscribe(datos => {
-                this.prevision = datos;
-                console.log(datos);
-            })
+        this.onGetWeather();
     }
-
 
     ngOnDestroy(): void {
         console.log("ngOnDestroy()");
-        this.subscription.unsubscribe();
+    }
 
+    onGetWeather() {
+        this.loadingController
+            .create({ keyboardClose: true, message: "Obteniendo datos..." })
+            .then(ruedecita => {
+                ruedecita.present();
+                this.weatherService.getWeather()
+                    .then(() => {
+                        ruedecita.dismiss();
+                        console.log("Obtenemos un resultado...")
+                        console.log(this.weatherService.weatherData);
+                        this.prevision = this.weatherService.weatherData;
+                    })
+                    .catch(error => {
+                        ruedecita.dismiss();
+                        console.log("Ups... Se ha producido un error: ", error);
+                    })
+            });
+    }
+
+    unixTime2Date(pUnixTime: number) {
+        const date = new Date(pUnixTime * 1000);
+        return this.datePipe.transform(date, 'EEEE, dd-MM-yyyy');
+    }
+
+    rutaImagen(pImagen: string): string {
+        return "http://openweathermap.org/img/wn/" + pImagen + "@2x.png"
+    }
+
+    capitaliza(pTexto: string): string {
+        const words = pTexto.split(" ");
+        return words.map((word) => {
+            return word[0].toUpperCase() + word.substring(1);
+        }).join(" ");
+    }
+
+    temperatura(pTemp: number) {
+        return Math.round(pTemp).toString() + "º";
     }
 
 }
