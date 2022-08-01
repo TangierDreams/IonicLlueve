@@ -12,6 +12,7 @@ import { DatePipe } from '@angular/common';
 export class HomePage implements OnInit, OnDestroy {
 
     public prevision = null;
+    public ahora: Date = new Date();
 
     constructor(
         private datePipe: DatePipe,
@@ -52,8 +53,12 @@ export class HomePage implements OnInit, OnDestroy {
         return this.datePipe.transform(date, 'EEEE, dd-MM-yyyy');
     }
 
-    rutaImagen(pImagen: string): string {
-        return "http://openweathermap.org/img/wn/" + pImagen + "@2x.png"
+    rutaImagen(pImagen: string, size: number): string {
+        if (size == 4) {
+            return "http://openweathermap.org/img/wn/" + pImagen + "@4x.png"
+        } else {
+            return "http://openweathermap.org/img/wn/" + pImagen + "@2x.png"
+        }
     }
 
     capitaliza(pTexto: string): string {
