@@ -68,8 +68,8 @@ export class HomePage implements OnInit, OnDestroy {
         }).join(" ");
     }
 
-    temperatura(pTemp: number) {
-        return Math.round(pTemp).toString() + "º";
-    }
+    // temperatura(pTemp: number) {
+    //     return Math.round(pTemp).toString() + "º";
+    // }
 
 }
