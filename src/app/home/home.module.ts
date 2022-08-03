@@ -1,4 +1,3 @@
-import { TemperaturaPipe } from './../pipes/temperatura.pipe';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';

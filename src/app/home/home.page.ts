@@ -2,6 +2,8 @@ import { WeatherService } from './../services/weather.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LoadingController } from '@ionic/angular';
 import { DatePipe } from '@angular/common';
+import { Ciudad } from '../models/ciudad';
+import { CiudadesService } from '../services/ciudades.service';
 
 @Component({
     selector: 'app-home',
@@ -13,28 +15,34 @@ export class HomePage implements OnInit, OnDestroy {
 
     public prevision = null;
     public ahora: Date = new Date();
+    public ciudades: Ciudad[];
+    public ciudadActual: Ciudad;
 
     constructor(
         private datePipe: DatePipe,
         private loadingController: LoadingController,
         private weatherService: WeatherService,
+        private ciudadesService: CiudadesService
     ) { }
 
     ngOnInit(): void {
         console.log("ngOnInit()");
-        this.onGetWeather();
+        this.ciudades = this.ciudadesService.getCiudades();
+        this.ciudadActual = this.ciudades[0];
+        this.onGetWeather(this.ciudades[0]);
     }
 
     ngOnDestroy(): void {
         console.log("ngOnDestroy()");
     }
 
-    onGetWeather() {
+    onGetWeather(pCiudad: Ciudad) {
+        this.ciudadActual = pCiudad;
         this.loadingController
-            .create({ keyboardClose: true, message: "Obteniendo datos..." })
+            .create({ keyboardClose: true, message: "Obteniendo datos de " + pCiudad.nombre })
             .then(ruedecita => {
                 ruedecita.present();
-                this.weatherService.getWeather()
+                this.weatherService.getWeather(pCiudad.longitud, pCiudad.latitud)
                     .then(() => {
                         ruedecita.dismiss();
                         console.log("Obtenemos un resultado...")
@@ -48,11 +56,6 @@ export class HomePage implements OnInit, OnDestroy {
             });
     }
 
-    unixTime2Date(pUnixTime: number) {
-        const date = new Date(pUnixTime * 1000);
-        return this.datePipe.transform(date, 'EEEE, dd-MM-yyyy');
-    }
-
     rutaImagen(pImagen: string, size: number): string {
         if (size == 4) {
             return "http://openweathermap.org/img/wn/" + pImagen + "@4x.png"
@@ -60,16 +63,5 @@ export class HomePage implements OnInit, OnDestroy {
             return "http://openweathermap.org/img/wn/" + pImagen + "@2x.png"
         }
     }
-
-    capitaliza(pTexto: string): string {
-        const words = pTexto.split(" ");
-        return words.map((word) => {
-            return word[0].toUpperCase() + word.substring(1);
-        }).join(" ");
-    }
-
-    // temperatura(pTemp: number) {
-    //     return Math.round(pTemp).toString() + "º";
-    // }
 
 }

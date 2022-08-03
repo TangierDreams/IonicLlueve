@@ -10,11 +10,27 @@
     <ion-grid>
         <ion-row>
             <ion-col size-sm="6" offset-sm="3">
+                <ion-row class="ciudades_container">
+                    <ion-col *ngFor="let ciudad of ciudades">
+                        <ion-chip (click)="onGetWeather(ciudad)">{{ ciudad.nombre }}
+                        </ion-chip>
+                    </ion-col>
+                </ion-row>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size-sm="6" offset-sm="3" class="ion-text-center">
+                <h3>{{ ciudadActual.nombre }}</h3>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size-sm="6" offset-sm="3">
 
                 <div *ngIf="prevision">
                     <ion-card>
                         <ion-card-header>
-                            <ion-card-title>{{ unixTime2Date(prevision.current.dt) }}</ion-card-title>
+                            <ion-card-title>{{ prevision.current.dt | unix2date | date:'EEEE, dd-MM-yyyy' }}
+                            </ion-card-title>
                             <ion-card-subtitle>{{ ahora | date:'shortTime' }}</ion-card-subtitle>
                         </ion-card-header>
 
@@ -31,7 +47,7 @@
 
                                     <ion-col size="6">
                                         <ion-row>
-                                            <ion-text><b>{{ capitaliza(prevision.current.weather[0].description) }}</b>
+                                            <ion-text><b>{{ prevision.current.weather[0].description | capitaliza }}</b>
                                             </ion-text>
                                         </ion-row>
                                         <ion-row class="letra_small">Sensación: {{ +prevision.current.feels_like |
@@ -43,7 +59,7 @@
 
                                 <ion-row>
                                     <ion-col size="3">
-                                        <ion-card class="ion-no-margin">
+                                        <ion-card class="ion-no-margin" style="height:100%;">
                                             <ion-card-content>
                                                 <div
                                                     style="display: flex; align-items: center; justify-content: center;">
@@ -52,15 +68,16 @@
                                                 </div>
                                                 <div
                                                     style="display: flex; align-items: center; justify-content: center; margin-top: 5px;">
-                                                    <ion-text class="letra_x_small">{{ prevision.current.wind_speed }}
-                                                        km/h</ion-text>
+                                                    <ion-text class="letra_x_small">{{ prevision.current.wind_speed |
+                                                        viento }}
+                                                    </ion-text>
                                                 </div>
                                             </ion-card-content>
                                         </ion-card>
                                     </ion-col>
 
                                     <ion-col size="3">
-                                        <ion-card class="ion-no-margin">
+                                        <ion-card class="ion-no-margin" style="height:100%;">
                                             <ion-card-content>
                                                 <div
                                                     style="display: flex; align-items: center; justify-content: center;">
@@ -69,7 +86,8 @@
                                                 </div>
                                                 <div
                                                     style="display: flex; align-items: center; justify-content: center; margin-top: 5px;">
-                                                    <ion-text class="letra_x_small">{{ prevision.current.humidity }}%
+                                                    <ion-text class="letra_x_small">{{ prevision.current.humidity |
+                                                        humedad }}
                                                     </ion-text>
                                                 </div>
                                             </ion-card-content>
@@ -77,7 +95,7 @@
                                     </ion-col>
 
                                     <ion-col size="3">
-                                        <ion-card class="ion-no-margin">
+                                        <ion-card class="ion-no-margin" style="height:100%;">
                                             <ion-card-content>
                                                 <div
                                                     style="display: flex; align-items: center; justify-content: center;">
@@ -86,8 +104,8 @@
                                                 </div>
                                                 <div
                                                     style="display: flex; align-items: center; justify-content: center; margin-top: 5px;">
-                                                    <ion-text class="letra_x_small">{{ prevision.current.pressure }}
-                                                        mbar
+                                                    <ion-text class="letra_x_small">{{ +prevision.current.pressure |
+                                                        presion }}
                                                     </ion-text>
                                                 </div>
                                             </ion-card-content>
@@ -95,7 +113,7 @@
                                     </ion-col>
 
                                     <ion-col size="3">
-                                        <ion-card class="ion-no-margin">
+                                        <ion-card class="ion-no-margin" style="height:100%;">
                                             <ion-card-content>
                                                 <div
                                                     style="display: flex; align-items: center; justify-content: center;">
@@ -119,49 +137,28 @@
 
 
                     <ion-card *ngFor="let dia of prevision.daily">
-                        <ion-card-header>
-                            <ion-item>
-                                <ion-img slot="start" [src]="rutaImagen(dia.weather[0].icon, 2)" style="width: 50px">
-                                </ion-img>
-                            </ion-item>
-                        </ion-card-header>
-
                         <ion-card-content>
                             <ion-grid>
-                                <ion-row>
-                                    <ion-col>
-                                        <ion-icon color="primary" name="thermometer-outline"></ion-icon>
+                                <ion-row class="vertical-align-content">
+                                    <ion-col size="3">
+                                        <ion-text class="letra_small">{{ dia.dt | unix2date | date:'EEEEEE dd-MM' }}
+                                        </ion-text>
                                     </ion-col>
                                     <ion-col>
-                                        <ion-text color="primary"><b>{{ +dia.temp.day | temperatura }}</b></ion-text>
+                                        <ion-img [src]="rutaImagen(dia.weather[0].icon, 2)" style="width: 50px">
+                                        </ion-img>
                                     </ion-col>
-                                    <ion-col class="letra_small">Max:</ion-col>
-                                    <ion-col class="letra_small">{{ +dia.temp.max | temperatura }}</ion-col>
-                                    <ion-col class="letra_small">Min:</ion-col>
-                                    <ion-col class="letra_small">{{ +dia.temp.min | temperatura }}</ion-col>
+                                    <ion-col>
+                                        <ion-text color="primary"><b>{{ +dia.temp.max | temperatura }}</b></ion-text>
+                                    </ion-col>
+                                    <ion-col>
+                                        <ion-text color="secondary"><b>{{ +dia.temp.min | temperatura }}</b></ion-text>
+                                    </ion-col>
+                                    <ion-col size="3">
+                                        <ion-text class="letra_x_small">{{ dia.weather[0].description | capitaliza }}
+                                        </ion-text>
+                                    </ion-col>
                                 </ion-row>
-
-
-                                <ion-row>
-                                    <ion-col>
-                                        <ion-icon color="primary" name="cloudy-outline"></ion-icon>
-                                    </ion-col>
-                                    <ion-col class="letra_small">Humedad:</ion-col>
-                                    <ion-col class="letra_small">{{ dia.humidity }}</ion-col>
-                                    <ion-col class="letra_small">Presion:</ion-col>
-                                    <ion-col class="letra_small">{{ dia.pressure }}</ion-col>
-                                </ion-row>
-
-                                <ion-row>
-                                    <ion-col>
-                                        <ion-icon color="primary" name="trending-up-outline"></ion-icon>
-                                    </ion-col>
-                                    <ion-col class="letra_small">Velocidad:</ion-col>
-                                    <ion-col class="letra_small">{{ dia.wind_speed }}</ion-col>
-                                    <ion-col class="letra_small">Dirección:</ion-col>
-                                    <ion-col class="letra_small">{{ dia.wind_deg }}</ion-col>
-                                </ion-row>
-
                             </ion-grid>
 
                         </ion-card-content>
